@@ -190,5 +190,6 @@ func (s *Stream) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		os.WriteFile(fmt.Sprintf("%d.jpg", idx), b, os.ModePerm)
 		idx++
+		fmt.Println(idx)
 	}
 }

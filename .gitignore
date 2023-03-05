@@ -1,6 +1,6 @@
 .idea
 *.exe
-example/camera/go_build_github_com_mattn_go_mjpeg__example_camera
+example/camera/go_build_github_com_ivanlebron_mjpeg_go_example_camera
 go.work
 
 example/camera/*.jpg
