@@ -13,6 +13,8 @@ import (
 	"time"
 	
 	"gocv.io/x/gocv"
+	
+	"github.com/ivanlebron/mjpeg-go"
 )
 
 var (

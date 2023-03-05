@@ -1,3 +1,4 @@
+.idea
 *.exe
 example/camera/go_build_github_com_mattn_go_mjpeg__example_camera
 go.work
