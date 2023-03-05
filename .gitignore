@@ -6,3 +6,5 @@ go.work
 example/camera/*.jpg
 example/movie/*.jpg
 example/movie/*.mp4
+
+.DS_Store

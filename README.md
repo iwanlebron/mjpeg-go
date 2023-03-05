@@ -1,4 +1,4 @@
-# go-mjpeg
+# mjpeg-go
 
 Motion Jpeg Encoder/Decoder
 
