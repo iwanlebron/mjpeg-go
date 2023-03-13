@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"sync"
 	"time"
-	
+
 	"github.com/ivanlebron/mjpeg-go"
 )
 
@@ -21,12 +21,12 @@ var (
 
 func proxy(wg *sync.WaitGroup, stream *mjpeg.Stream) {
 	defer wg.Done()
-	
+
 	dec, err := mjpeg.NewDecoderFromURL(*url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	for {
 		b, err := dec.DecodeRaw()
 		if err != nil {
@@ -45,25 +45,25 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
-	
+
 	stream := mjpeg.NewStreamWithInterval(*interval)
-	
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go proxy(&wg, stream)
-	
+
 	http.HandleFunc("/jpeg", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/jpeg")
 		w.Write(stream.Current())
 	})
-	
+
 	http.HandleFunc("/mjpeg", stream.ServeHTTP)
-	
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(`<img src="/mjpeg" />`))
+		w.Write([]byte(`<img src="/mjpeg" style="width: 800px" />`))
 	})
-	
+
 	server := &http.Server{Addr: *addr}
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt)
@@ -73,6 +73,6 @@ func main() {
 	}()
 	server.ListenAndServe()
 	stream.Close()
-	
+
 	wg.Wait()
 }
