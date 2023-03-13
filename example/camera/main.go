@@ -11,9 +11,9 @@ import (
 	"strconv"
 	"sync"
 	"time"
-	
+
 	"gocv.io/x/gocv"
-	
+
 	"github.com/ivanlebron/mjpeg-go"
 )
 
@@ -26,7 +26,7 @@ var (
 
 func capture(ctx context.Context, wg *sync.WaitGroup, stream *mjpeg.Stream) {
 	defer wg.Done()
-	
+
 	var webcam *gocv.VideoCapture
 	var err error
 	if id, err := strconv.ParseInt(*camera, 10, 64); err == nil {
@@ -39,23 +39,23 @@ func capture(ctx context.Context, wg *sync.WaitGroup, stream *mjpeg.Stream) {
 		return
 	}
 	defer webcam.Close()
-	
+
 	classifier := gocv.NewCascadeClassifier()
 	defer classifier.Close()
 	if !classifier.Load(*xml) {
 		log.Println("unable to load:", *xml)
 		return
 	}
-	
+
 	im := gocv.NewMat()
-	
+
 	for len(ctx.Done()) == 0 {
 		var buf []byte
 		if stream.NWatch() > 0 {
 			if ok := webcam.Read(&im); !ok {
 				continue
 			}
-			
+
 			rects := classifier.DetectMultiScale(im)
 			for _, r := range rects {
 				face := im.Region(r)
@@ -77,21 +77,21 @@ func capture(ctx context.Context, wg *sync.WaitGroup, stream *mjpeg.Stream) {
 
 func main() {
 	flag.Parse()
-	
+
 	stream := mjpeg.NewStreamWithInterval(*interval)
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go capture(ctx, &wg, stream)
-	
+
 	http.HandleFunc("/mjpeg", stream.ServeHTTP)
-	
+
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte(`<img src="/mjpeg" />`))
+		w.Write([]byte(`<img src="/mjpeg" style="width: 800px" />`))
 	})
-	
+
 	server := &http.Server{Addr: *addr}
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt)
@@ -102,6 +102,6 @@ func main() {
 	server.ListenAndServe()
 	stream.Close()
 	cancel()
-	
+
 	wg.Wait()
 }
